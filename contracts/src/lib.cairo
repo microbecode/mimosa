@@ -1,8 +1,32 @@
+use starknet::ContractAddress;
+
 #[starknet::interface]
 pub trait IMimosa<TContractState> {
     fn deposit(ref self: TContractState, commitment: felt252);
     fn withdraw(ref self: TContractState, preimage: felt252);
-//fn get_balance(self: @TContractState) -> felt252;
+}
+
+#[starknet::interface]
+trait IERC20<TContractState> {
+    fn name(self: @TContractState) -> felt252;
+
+    fn symbol(self: @TContractState) -> felt252;
+
+    fn decimals(self: @TContractState) -> u8;
+
+    fn total_supply(self: @TContractState) -> u256;
+
+    fn balance_of(self: @TContractState, account: ContractAddress) -> u256;
+
+    fn allowance(self: @TContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
+
+    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
+
+    fn transfer_from(
+        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+    ) -> bool;
+
+    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
 }
 
 #[starknet::contract]
@@ -12,21 +36,29 @@ mod Mimosa {
         Hasher, MerkleTree, poseidon::PoseidonHasherImpl, MerkleTreeTrait
     };
     use core::poseidon::hades_permutation;
+    use starknet::{
+        ContractAddress, contract_address_const, get_caller_address, get_contract_address
+    };
+    use super::IERC20DispatcherTrait;
+    use super::IERC20Dispatcher;
 
     const levels: felt252 = 4;
-    const denomination: felt252 = 100;
+    const denomination: u256 = 100;
     const first_leaf_index: usize = 7;
     const last_leaf_index: usize = 14;
+    const STRK_ADDRESS: felt252 =
+        0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d;
 
     #[storage]
     struct Storage {
         next_index: usize,
-        // In a merkle tree of level 4, the nodes are stored in map with indexes:
+        // In a merkle tree of level 4, the nodes are stored in map with keys:
         //         0              <- level 0
         //    1          2        <- level 1
         //  3   4     5     6     <- level 2
         // 7 8 9 10 11 12 13 14   <- level 3
-        nodes: LegacyMap<usize, felt252> // index -> hash
+        nodes: LegacyMap<usize, felt252>, // index -> hash
+        token_address: ContractAddress
     }
 
     #[constructor]
@@ -34,11 +66,17 @@ mod Mimosa {
         //let mut merkle_tree: MerkleTree<Hasher> = MerkleTreeTrait::new();
         init_zeros(ref self);
         self.next_index.write(first_leaf_index);
+
+        // Local devnet STRK token address
+        self.token_address.write(contract_address_const::<STRK_ADDRESS>());
     }
 
     #[abi(embed_v0)]
     impl MimosaImpl of super::IMimosa<ContractState> {
         fn deposit(ref self: ContractState, commitment: felt252) {
+            let addr = self.token_address.read();
+            IERC20Dispatcher { contract_address: addr }
+                .transfer_from(get_caller_address(), get_contract_address(), denomination);
             // TODO: take token balance according to 'denomination'
             self.nodes.write(self.next_index.read(), commitment);
             self.next_index.write(self.next_index.read() + 1);
