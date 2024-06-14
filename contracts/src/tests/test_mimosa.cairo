@@ -1,8 +1,4 @@
-use contracts::IMimosaDispatcher;
-use contracts::IMimosaDispatcherTrait;
-
-use contracts::IMimosaSafeDispatcher;
-use contracts::IMimosaSafeDispatcherTrait;
+use contracts::interfaces::{IMimosaDispatcher, IMimosaDispatcherTrait};
 use core::poseidon::hades_permutation;
 use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
 use starknet::ContractAddress;
