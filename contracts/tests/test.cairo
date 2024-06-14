@@ -25,12 +25,6 @@ fn test_flow() {
     let (hash, _, _) = hades_permutation(secret, 0, 1);
 
     dispatcher.deposit(hash);
-// let balance_before = dispatcher.get_balance();
-// assert(balance_before == 0, 'Invalid balance');
-
-// dispatcher.increase_balance(42);
-
-// let balance_after = dispatcher.get_balance();
-// assert(balance_after == 42, 'Invalid balance');
+    dispatcher.withdraw(secret);
 }
 

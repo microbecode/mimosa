@@ -1,6 +1,7 @@
 #[starknet::interface]
 pub trait IMimosa<TContractState> {
     fn deposit(ref self: TContractState, commitment: felt252);
+    fn withdraw(ref self: TContractState, preimage: felt252);
 //fn get_balance(self: @TContractState) -> felt252;
 }
 
@@ -14,23 +15,25 @@ mod Mimosa {
 
     const levels: felt252 = 4;
     const denomination: felt252 = 100;
+    const first_leaf_index: usize = 7;
+    const last_leaf_index: usize = 14;
 
     #[storage]
     struct Storage {
-        next_index: felt252,
+        next_index: usize,
         // In a merkle tree of level 4, the nodes are stored in map with indexes:
         //         0              <- level 0
         //    1          2        <- level 1
         //  3   4     5     6     <- level 2
         // 7 8 9 10 11 12 13 14   <- level 3
-        nodes: LegacyMap<felt252, felt252> // index -> hash
+        nodes: LegacyMap<usize, felt252> // index -> hash
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
-        let mut merkle_tree: MerkleTree<Hasher> = MerkleTreeTrait::new();
+        //let mut merkle_tree: MerkleTree<Hasher> = MerkleTreeTrait::new();
         init_zeros(ref self);
-        self.next_index.write(7); // first leaf index
+        self.next_index.write(first_leaf_index);
     }
 
     #[abi(embed_v0)]
@@ -38,15 +41,28 @@ mod Mimosa {
         fn deposit(ref self: ContractState, commitment: felt252) {
             // TODO: take token balance according to 'denomination'
             self.nodes.write(self.next_index.read(), commitment);
+            self.next_index.write(self.next_index.read() + 1);
         }
-    // fn increase_balance(ref self: ContractState, amount: felt252) {
-    //     assert(amount != 0, 'Amount cannot be 0');
-    //     self.balance.write(self.balance.read() + amount);
-    // }
 
-    // fn get_balance(self: @ContractState) -> felt252 {
-    //     self.balance.read()
-    // }
+        fn withdraw(ref self: ContractState, preimage: felt252) {
+            let mut i: usize = first_leaf_index;
+            let mut ok: bool = false;
+            loop {
+                if i == last_leaf_index + 1 {
+                    break;
+                }
+                let (hash, _, _) = hades_permutation(preimage, 0, 1);
+                if (self.nodes.read(i) == hash) {
+                    // TODO: transfer balance according to 'denomination'
+                    ok = true;
+                }
+
+                i += 1;
+            };
+            if (!ok) {
+                panic!("Not found");
+            }
+        }
     }
 
     fn init_zeros(ref self: ContractState) {
