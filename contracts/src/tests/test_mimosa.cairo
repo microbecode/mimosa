@@ -1,69 +1,40 @@
-use contracts::interfaces::{IMimosaDispatcher, IMimosaDispatcherTrait};
+use contracts::interfaces::{IMimosaDispatcher, IMimosaDispatcherTrait, IERC20Dispatcher, IERC20DispatcherTrait};
 use core::poseidon::hades_permutation;
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address};
+use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address, cheat_caller_address, stop_cheat_caller_address, CheatSpan};
 use starknet::ContractAddress;
-//use contracts::my_token::MyToken;
 
-const USER1_WITH_BALANCE: felt252 = 0x11;
-
-fn deploy_contract(name: ByteArray) -> ContractAddress {
-    let contract = declare(name).unwrap();
-    let (contract_address, _) = contract.deploy(@ArrayTrait::new()).unwrap();
-    contract_address
+fn user1() -> ContractAddress {
+    'user 1'.try_into().unwrap()
 }
 
-fn deploy_token(recipient: felt252) -> ContractAddress {
-    let mut calldata = ArrayTrait::new();
-    calldata.append(1000000000000000000);
-    calldata.append(0);
-    calldata.append(recipient);
+fn deploy_mimosa(token_address: ContractAddress) -> ContractAddress {
+    let contract = declare("Mimosa").unwrap();
+    let calldata: Array<felt252> = array![token_address.into()];
+    let (address, _) = contract.deploy(@calldata).unwrap();
+    address
+}
 
+fn deploy_token(recipient: ContractAddress) -> ContractAddress {
     let contract = declare("MyToken").unwrap();
-    // let address = contract
-    //     .deploy_at(@calldata, STRK_ADDRESS.try_into().unwrap())
-    //     .expect('unable to deploy mockstrk');
-
-    let (contract_address, _) = contract.deploy(@calldata).unwrap();
-
-    //IERC20Dispatcher { contract_address: address }
-    contract_address
+    let calldata: Array<felt252> = array![1000000000000000000, 0, recipient.into()];
+    let (address, _) = contract.deploy(@calldata).unwrap();
+    address
 }
 
 #[test]
 fn test_flow() {
-    let contract_address = deploy_contract("Mimosa");
-    let token_address = deploy_token(USER1_WITH_BALANCE);
-
-    let dispatcher = IMimosaDispatcher { contract_address };
+    let token_address = deploy_token(user1());
+    let mimosa_address = deploy_mimosa(token_address);
+    let mimosa = IMimosaDispatcher { contract_address: mimosa_address };
 
     let secret: felt252 = 5;
-
     let (hash, _, _) = hades_permutation(secret, 0, 1);
 
-    start_cheat_caller_address(contract_address, USER1_WITH_BALANCE.try_into().unwrap());
-// dispatcher.deposit(hash);
-// dispatcher.withdraw(secret);
-}
+    start_cheat_caller_address(token_address, user1());
+    IERC20Dispatcher { contract_address: token_address }.approve(mimosa_address, 100);
+    stop_cheat_caller_address(token_address);
 
-#[starknet::interface]
-trait IERC20<TContractState> {
-    fn name(self: @TContractState) -> felt252;
-
-    fn symbol(self: @TContractState) -> felt252;
-
-    fn decimals(self: @TContractState) -> u8;
-
-    fn total_supply(self: @TContractState) -> u256;
-
-    fn balance_of(self: @TContractState, account: ContractAddress) -> u256;
-
-    fn allowance(self: @TContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
-
-    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
-
-    fn transfer_from(
-        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
-    ) -> bool;
-
-    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
+    start_cheat_caller_address(mimosa_address, user1());
+    mimosa.deposit(hash);
+    mimosa.withdraw(secret);
 }

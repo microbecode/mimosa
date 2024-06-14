@@ -1,16 +1,16 @@
 #[starknet::contract]
 mod Mimosa {
-    use alexandria_merkle_tree::merkle_tree::HasherTrait;
-    use alexandria_merkle_tree::merkle_tree::{Hasher, MerkleTree, poseidon::PoseidonHasherImpl, MerkleTreeTrait};
+    use alexandria_merkle_tree::merkle_tree::{Hasher, HasherTrait, MerkleTree, poseidon::PoseidonHasherImpl, MerkleTreeTrait};
+    use contracts::interfaces::{IMimosa, IERC20Dispatcher, IERC20DispatcherTrait};
     use core::poseidon::hades_permutation;
     use starknet::{ContractAddress, contract_address_const, get_caller_address, get_contract_address};
-    use contracts::interfaces::{IMimosa, IERC20Dispatcher, IERC20DispatcherTrait};
 
     const levels: felt252 = 4;
     const denomination: u256 = 100;
     const first_leaf_index: usize = 7;
     const last_leaf_index: usize = 14;
-    const STRK_ADDRESS: felt252 = 0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d;
+
+    // TODO: events
 
     #[storage]
     struct Storage {
@@ -21,26 +21,21 @@ mod Mimosa {
         //  3   4     5     6     <- level 2
         // 7 8 9 10 11 12 13 14   <- level 3
         nodes: LegacyMap<usize, felt252>, // index -> hash
-        token_address: ContractAddress
+        token_address: IERC20Dispatcher
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
+    fn constructor(ref self: ContractState, token_address: ContractAddress) {
         //let mut merkle_tree: MerkleTree<Hasher> = MerkleTreeTrait::new();
         init_zeros(ref self);
         self.next_index.write(first_leaf_index);
-
-        // Local devnet STRK token address
-        self.token_address.write(contract_address_const::<STRK_ADDRESS>());
-    }
+        self.token_address.write(IERC20Dispatcher { contract_address: token_address });
+        }
 
     #[abi(embed_v0)]
     impl MimosaImpl of IMimosa<ContractState> {
         fn deposit(ref self: ContractState, commitment: felt252) {
-            let addr = self.token_address.read();
-            IERC20Dispatcher { contract_address: addr }
-                .transfer_from(get_caller_address(), get_contract_address(), denomination);
-            // TODO: take token balance according to 'denomination'
+            self.token_address.read().transfer_from(get_caller_address(), get_contract_address(), denomination);
             self.nodes.write(self.next_index.read(), commitment);
             self.next_index.write(self.next_index.read() + 1);
         }
@@ -54,7 +49,7 @@ mod Mimosa {
                 }
                 let (hash, _, _) = hades_permutation(preimage, 0, 1);
                 if (self.nodes.read(i) == hash) {
-                    // TODO: transfer balance according to 'denomination'
+                    self.token_address.read().transfer(get_caller_address(), denomination);
                     ok = true;
                 }
 
