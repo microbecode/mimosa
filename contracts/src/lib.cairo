@@ -32,22 +32,17 @@ trait IERC20<TContractState> {
 #[starknet::contract]
 mod Mimosa {
     use alexandria_merkle_tree::merkle_tree::HasherTrait;
-    use alexandria_merkle_tree::merkle_tree::{
-        Hasher, MerkleTree, poseidon::PoseidonHasherImpl, MerkleTreeTrait
-    };
+    use alexandria_merkle_tree::merkle_tree::{Hasher, MerkleTree, poseidon::PoseidonHasherImpl, MerkleTreeTrait};
     use core::poseidon::hades_permutation;
-    use starknet::{
-        ContractAddress, contract_address_const, get_caller_address, get_contract_address
-    };
-    use super::IERC20DispatcherTrait;
+    use starknet::{ContractAddress, contract_address_const, get_caller_address, get_contract_address};
     use super::IERC20Dispatcher;
+    use super::IERC20DispatcherTrait;
 
     const levels: felt252 = 4;
     const denomination: u256 = 100;
     const first_leaf_index: usize = 7;
     const last_leaf_index: usize = 14;
-    const STRK_ADDRESS: felt252 =
-        0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d;
+    const STRK_ADDRESS: felt252 = 0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d;
 
     #[storage]
     struct Storage {
