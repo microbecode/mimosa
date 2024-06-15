@@ -1,11 +1,15 @@
 #[starknet::contract]
 mod Mimosa {
-    use alexandria_merkle_tree::merkle_tree::{Hasher, HasherTrait, MerkleTree, poseidon::PoseidonHasherImpl, MerkleTreeTrait};
+    use alexandria_merkle_tree::merkle_tree::{
+        Hasher, HasherTrait, MerkleTree, poseidon::PoseidonHasherImpl, MerkleTreeTrait
+    };
     use contracts::interfaces::{IMimosa, IERC20Dispatcher, IERC20DispatcherTrait};
     use core::poseidon::hades_permutation;
-    use starknet::{ContractAddress, contract_address_const, get_caller_address, get_contract_address};
+    use starknet::{
+        ContractAddress, contract_address_const, get_caller_address, get_contract_address
+    };
 
-    const levels: felt252 = 4;
+    const levels: usize = 4;
     const denomination: u256 = 100;
     const first_leaf_index: usize = 7;
     const last_leaf_index: usize = 14;
@@ -30,14 +34,16 @@ mod Mimosa {
         init_zeros(ref self);
         self.next_index.write(first_leaf_index);
         self.token_address.write(IERC20Dispatcher { contract_address: token_address });
-        }
+    }
 
     #[abi(embed_v0)]
     impl MimosaImpl of IMimosa<ContractState> {
         fn deposit(ref self: ContractState, commitment: felt252) {
-            self.token_address.read().transfer_from(get_caller_address(), get_contract_address(), denomination);
-            self.nodes.write(self.next_index.read(), commitment);
-            self.next_index.write(self.next_index.read() + 1);
+            self
+                .token_address
+                .read()
+                .transfer_from(get_caller_address(), get_contract_address(), denomination);
+            insert(ref self, commitment);
         }
 
         fn withdraw(ref self: ContractState, preimage: felt252) {
@@ -61,11 +67,75 @@ mod Mimosa {
         }
     }
 
-    fn init_zeros(ref self: ContractState) {
+
+    fn insert(ref self: ContractState, hash: felt252) {
+        let mut current_index: usize = self.next_index.read();
+        println!("Inserting to index {}", current_index);
+        let mut current_level_hash = hash;
+        let mut left: felt252 = 0;
+        let mut right: felt252 = 0;
+
+        let mut level: usize = levels - 1;
+        loop {
+            if level == 0 {
+                break;
+            }
+
+            self.nodes.write(current_index, current_level_hash);
+            // In a merkle tree of level 4, the nodes are stored in map with keys:
+            //         0              <- level 0
+            //    1          2        <- level 1
+            //  3   4     5     6     <- level 2
+            // 7 8 9 10 11 12 13 14   <- level 3
+
+            if (current_index % 2 == 1) {
+                print!("left, ");
+                left = current_level_hash;
+                right = zero_hash(level);
+                current_index /= 2;
+            } else {
+                print!("right, ");
+                left = self.nodes.read(current_index - 1); // get the left sibling
+                right = current_level_hash;
+                current_index = (current_index - 1) / 2;
+            }
+            println!("next index {}", current_index);
+            let (new_hash, _, _) = hades_permutation(left, right, 2);
+            current_level_hash = new_hash;
+
+            level -= 1;
+        };
+
+        self.next_index.write(self.next_index.read() + 1);
+    }
+
+    fn zero_hash(level: usize) -> felt252 {
         let (zero_hash_level_3, _, _) = hades_permutation(0, 0, 1);
+        if (level == 3) {
+            return zero_hash_level_3;
+        }
         let (zero_hash_level_2, _, _) = hades_permutation(zero_hash_level_3, zero_hash_level_3, 2);
+        if (level == 2) {
+            return zero_hash_level_2;
+        }
         let (zero_hash_level_1, _, _) = hades_permutation(zero_hash_level_2, zero_hash_level_2, 2);
+        if (level == 1) {
+            return zero_hash_level_1;
+        }
         let (zero_hash_level_0, _, _) = hades_permutation(zero_hash_level_1, zero_hash_level_1, 2);
+        if (level == 0) {
+            return zero_hash_level_0;
+        }
+
+        panic!("Invalid level");
+        0
+    }
+
+    fn init_zeros(ref self: ContractState) {
+        let zero_hash_level_3 = zero_hash(3);
+        let zero_hash_level_2 = zero_hash(2);
+        let zero_hash_level_1 = zero_hash(1);
+        let zero_hash_level_0 = zero_hash(0);
 
         self.nodes.write(0, zero_hash_level_0);
 
