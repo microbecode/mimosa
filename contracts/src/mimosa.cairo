@@ -9,8 +9,9 @@ mod Mimosa {
         ContractAddress, contract_address_const, get_caller_address, get_contract_address
     };
 
-    const levels: usize = 4;
     const denomination: u256 = 100;
+
+    const levels: usize = 4;
     const first_leaf_index: usize = 7;
     const last_leaf_index: usize = 14;
 
@@ -70,7 +71,7 @@ mod Mimosa {
 
     fn insert(ref self: ContractState, hash: felt252) {
         let mut current_index: usize = self.next_index.read();
-        println!("Inserting to index {}", current_index);
+        // println!("Inserting to index {}", current_index);
         let mut current_level_hash = hash;
         let mut left: felt252 = 0;
         let mut right: felt252 = 0;
@@ -89,17 +90,17 @@ mod Mimosa {
             // 7 8 9 10 11 12 13 14   <- level 3
 
             if (current_index % 2 == 1) {
-                print!("left, ");
+                //print!("left, ");
                 left = current_level_hash;
                 right = zero_hash(level);
                 current_index /= 2;
             } else {
-                print!("right, ");
+                //print!("right, ");
                 left = self.nodes.read(current_index - 1); // get the left sibling
                 right = current_level_hash;
                 current_index = (current_index - 1) / 2;
             }
-            println!("next index {}", current_index);
+            //println!("next index {}", current_index);
             let (new_hash, _, _) = hades_permutation(left, right, 2);
             current_level_hash = new_hash;
 

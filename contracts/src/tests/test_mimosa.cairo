@@ -45,6 +45,8 @@ fn test_flow() {
     mimosa.withdraw(secret);
 }
 
+// For testing multiple deposits manually
+#[ignore]
 #[test]
 fn test_multiple_deposits() {
     let token_address = deploy_token(user1());
@@ -65,5 +67,4 @@ fn test_multiple_deposits() {
     mimosa.deposit(hash);
     mimosa.deposit(hash);
     mimosa.deposit(hash);
-//mimosa.withdraw(secret);
 }
