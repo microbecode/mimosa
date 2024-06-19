@@ -89,13 +89,13 @@ const deepMergeContracts = <
 
 const contractsData = deepMergeContracts(
   deployedContractsData,
-  predeployedContracts,
+  //predeployedContracts,
+  {},
 );
 
 type IsContractDeclarationMissing<TYes, TNo> = typeof contractsData extends {
   [key in ConfiguredChainId]: any;
-}
-  ? TNo
+} ? TNo
   : TYes;
 
 type ContractsDeclaration = IsContractDeclarationMissing<
@@ -145,24 +145,26 @@ export type UseScaffoldWriteConfig<
     ContractAbi<TContractName>,
     "external"
   >,
-> = {
-  contractName: TContractName;
-} & IsContractDeclarationMissing<
-  Partial<UseContractWriteProps> & {
-    functionName: string;
-    args: any[];
-  },
-  {
-    functionName: TFunctionName;
-  } & Omit<
-    UseContractWriteProps,
-    "chainId" | "abi" | "address" | "functionName" | "mode"
-  > &
-    UseScaffoldArgsParam<TContractName, TFunctionName>
->;
+> =
+  & {
+    contractName: TContractName;
+  }
+  & IsContractDeclarationMissing<
+    Partial<UseContractWriteProps> & {
+      functionName: string;
+      args: any[];
+    },
+    & {
+      functionName: TFunctionName;
+    }
+    & Omit<
+      UseContractWriteProps,
+      "chainId" | "abi" | "address" | "functionName" | "mode"
+    >
+    & UseScaffoldArgsParam<TContractName, TFunctionName>
+  >;
 
-type InferContractAbi<TContract> = TContract extends { abi: infer TAbi }
-  ? TAbi
+type InferContractAbi<TContract> = TContract extends { abi: infer TAbi } ? TAbi
   : never;
 
 export type ContractAbi<TContractName extends ContractName = ContractName> =
@@ -188,14 +190,11 @@ type OptionalTupple<T> = T extends readonly [infer H, ...infer R]
   ? readonly [H | undefined, ...OptionalTupple<R>]
   : T;
 type UnionToIntersection<U> = Expand<
-  (U extends any ? (k: U) => void : never) extends (k: infer I) => void
-    ? I
+  (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I
     : never
 >;
-type Expand<T> = T extends object
-  ? T extends infer O
-    ? { [K in keyof O]: O[K] }
-    : never
+type Expand<T> = T extends object ? T extends infer O ? { [K in keyof O]: O[K] }
+  : never
   : T;
 
 // helper function will only take from interfaces : //TODO: see if we can make it more generic
@@ -250,41 +249,42 @@ export type UseScaffoldArgsParam<
   TFunctionName extends ExtractAbiFunctionNamesScaffold<
     ContractAbi<TContractName>
   >,
-> =
-  TFunctionName extends ExtractAbiFunctionNamesWithInputsScaffold<
-    ContractAbi<TContractName>
-  >
-    ? {
-        args: OptionalTupple<
-          UnionToIntersection<
-            ExtractArgs<
-              ContractAbi<TContractName>,
-              ExtractAbiFunctionScaffold<
-                ContractAbi<TContractName>,
-                TFunctionName
-              >
-            >
+> = TFunctionName extends ExtractAbiFunctionNamesWithInputsScaffold<
+  ContractAbi<TContractName>
+> ? {
+    args: OptionalTupple<
+      UnionToIntersection<
+        ExtractArgs<
+          ContractAbi<TContractName>,
+          ExtractAbiFunctionScaffold<
+            ContractAbi<TContractName>,
+            TFunctionName
           >
-        >;
-      }
-    : {
-        args?: never;
-      };
+        >
+      >
+    >;
+  }
+  : {
+    args?: never;
+  };
 
 export type UseScaffoldReadConfig<
   TContractName extends ContractName,
   TFunctionName extends ExtractAbiFunctionNamesScaffold<
     ContractAbi<TContractName>
   >,
-> = {
-  contractName: TContractName;
-} & IsContractDeclarationMissing<
-  Partial<UseContractReadProps>,
-  {
-    functionName: TFunctionName;
-  } & UseScaffoldArgsParam<TContractName, TFunctionName> &
-    Omit<UseContractReadProps, "chainId" | "abi" | "address" | "functionName">
->;
+> =
+  & {
+    contractName: TContractName;
+  }
+  & IsContractDeclarationMissing<
+    Partial<UseContractReadProps>,
+    & {
+      functionName: TFunctionName;
+    }
+    & UseScaffoldArgsParam<TContractName, TFunctionName>
+    & Omit<UseContractReadProps, "chainId" | "abi" | "address" | "functionName">
+  >;
 
 export type AbiFunctionOutputs<
   TAbi extends Abi,
@@ -401,8 +401,8 @@ export function parseParamWithType(
       return typeof param === "boolean"
         ? param
         : (param as string).startsWith("0x0")
-          ? "false"
-          : "true";
+        ? "false"
+        : "true";
     } else if (isCairoBytes31(paramType)) {
       return tryParsingParamReturnObject(
         (x: bigint) => `0x${x.toString(16)}`,
