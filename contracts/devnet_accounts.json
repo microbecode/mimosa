@@ -1,0 +1,13 @@
+{
+  "alpha-sepolia": {
+    "devnet10": {
+      "address": "0x4b3f4ba8c00a02b66142a4b1dd41a4dfab4f92650922a3280977b0f03c75ee1",
+      "class_hash": "0x61dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f",
+      "deployed": true,
+      "legacy": false,
+      "private_key": "0x57b2f8431c772e647712ae93cc616638",
+      "public_key": "0x374f7fcb50bc2d6b8b7a267f919232e3ac68354ce3eafe88d3df323fc1deb23",
+      "type": "open_zeppelin"
+    }
+  }
+}
