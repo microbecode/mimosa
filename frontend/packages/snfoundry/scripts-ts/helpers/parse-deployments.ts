@@ -5,6 +5,7 @@ import { Abi, CompiledSierra } from "starknet";
 
 const TARGET_DIR = path.join(__dirname, "../../../nextjs/contracts");
 const deploymentsDir = path.join(__dirname, "../../deployments");
+const contractsDir = path.join(__dirname, "../../../../../contracts");
 const files = fs.readdirSync(deploymentsDir);
 
 const generatedContractComment = `/**
@@ -37,8 +38,8 @@ const getContractDataFromDeployments = (): Record<
       Object.entries(content).forEach(([contractName, contractData]) => {
         try {
           const abiFilePath = path.join(
-            __dirname,
-            `../../contracts/target/dev/contracts_${contractData.contract}.contract_class.json`,
+            contractsDir,
+            `/target/dev/contracts_${contractData.contract}.contract_class.json`,
           );
           const abiContent: CompiledSierra = JSON.parse(
             fs.readFileSync(abiFilePath, "utf8"),

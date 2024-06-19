@@ -1,3 +1,6 @@
+# generated files
+./packages/nextjs/contracts/deployedContracts.ts
+
 # Logs
 logs
 *.log
