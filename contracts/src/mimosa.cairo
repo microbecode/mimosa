@@ -15,8 +15,6 @@ mod Mimosa {
     const first_leaf_index: usize = 7;
     const last_leaf_index: usize = 14;
 
-    // TODO: events
-
     #[storage]
     struct Storage {
         next_index: usize,
@@ -31,7 +29,6 @@ mod Mimosa {
 
     #[constructor]
     fn constructor(ref self: ContractState, token_address: ContractAddress) {
-        //let mut merkle_tree: MerkleTree<Hasher> = MerkleTreeTrait::new();
         init_zeros(ref self);
         self.next_index.write(first_leaf_index);
         self.token_address.write(IERC20Dispatcher { contract_address: token_address });
@@ -47,23 +44,35 @@ mod Mimosa {
             insert(ref self, commitment);
         }
 
-        fn withdraw(ref self: ContractState, preimage: felt252) {
-            let mut i: usize = first_leaf_index;
-            let mut ok: bool = false;
-            loop {
-                if i == last_leaf_index + 1 {
-                    break;
-                }
-                let (hash, _, _) = hades_permutation(preimage, 0, 1);
-                if (self.nodes.read(i) == hash) {
-                    self.token_address.read().transfer(get_caller_address(), denomination);
-                    ok = true;
+        fn get_proof(ref self: ContractState, mut index: u32) -> Span<felt252> {
+            let mut nodes: Array<felt252> = array![];
+            let mut i = 0;
+            while (i <= last_leaf_index) {
+                nodes.append(self.nodes.read(i));
+                i = i + 1;
+            };
+
+            let mut proof: Array<felt252> = array![];
+
+            while (index > 0) {
+                if index % 2 == 1 {
+                    proof.append(*nodes.at(index + 1));
+                } else {
+                    proof.append(*nodes.at(index - 1));
                 }
 
-                i += 1;
+                index = index / 2;
             };
-            if (!ok) {
-                panic!("Not found");
+            return proof.span();
+        }
+
+        fn withdraw(ref self: ContractState, index: u32, proof: Span<felt252>, preimage: felt252) {
+            let mut merkle_tree: MerkleTree<Hasher> = MerkleTreeTrait::new();
+
+            let (hash, _, _) = hades_permutation(preimage, 0, 1);
+            let res = merkle_tree.verify(self.nodes.read(0), hash, proof);
+            if (res) {
+                self.token_address.read().transfer(get_caller_address(), denomination);
             }
         }
     }
@@ -79,6 +88,7 @@ mod Mimosa {
         let mut level: usize = levels - 1;
         loop {
             if level == 0 {
+                self.nodes.write(0, current_level_hash);
                 break;
             }
 
@@ -100,31 +110,41 @@ mod Mimosa {
                 right = current_level_hash;
                 current_index = (current_index - 1) / 2;
             }
-            //println!("next index {}", current_index);
-            let (new_hash, _, _) = hades_permutation(left, right, 2);
-            current_level_hash = new_hash;
+            // println!("next index {} {} {}", current_index, left, right);
+            if Into::<felt252, u256>::into(left) < (right).into() {
+                let (new_hash, _, _) = hades_permutation(left, right, 2);
+                current_level_hash = new_hash;
+            } else {
+                let (new_hash, _, _) = hades_permutation(right, left, 2);
+                current_level_hash = new_hash;
+            }
 
             level -= 1;
         };
-
+        //println!("root {}", self.nodes.read(0));
         self.next_index.write(self.next_index.read() + 1);
     }
 
     fn zero_hash(level: usize) -> felt252 {
         let (zero_hash_level_3, _, _) = hades_permutation(0, 0, 1);
+
         if (level == 3) {
+            //println!("Zero hash level {} {}", level, zero_hash_level_3);
             return zero_hash_level_3;
         }
         let (zero_hash_level_2, _, _) = hades_permutation(zero_hash_level_3, zero_hash_level_3, 2);
         if (level == 2) {
+            //println!("Zero hash level {} {}", level, zero_hash_level_2);
             return zero_hash_level_2;
         }
         let (zero_hash_level_1, _, _) = hades_permutation(zero_hash_level_2, zero_hash_level_2, 2);
         if (level == 1) {
+            //println!("Zero hash level {} {}", level, zero_hash_level_1);
             return zero_hash_level_1;
         }
         let (zero_hash_level_0, _, _) = hades_permutation(zero_hash_level_1, zero_hash_level_1, 2);
         if (level == 0) {
+            //println!("Zero hash level {} {}", level, zero_hash_level_0);
             return zero_hash_level_0;
         }
 

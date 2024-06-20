@@ -30,6 +30,8 @@ fn deploy_token(recipient: ContractAddress) -> ContractAddress {
 #[test]
 fn test_flow() {
     let token_address = deploy_token(user1());
+    let token = IERC20Dispatcher { contract_address: token_address };
+
     let mimosa_address = deploy_mimosa(token_address);
     let mimosa = IMimosaDispatcher { contract_address: mimosa_address };
 
@@ -37,12 +39,22 @@ fn test_flow() {
     let (hash, _, _) = hades_permutation(secret, 0, 1);
 
     start_cheat_caller_address(token_address, user1());
-    IERC20Dispatcher { contract_address: token_address }.approve(mimosa_address, denomination);
+    token.approve(mimosa_address, denomination);
     stop_cheat_caller_address(token_address);
 
     start_cheat_caller_address(mimosa_address, user1());
+
+    let before = token.balance_of(user1());
     mimosa.deposit(hash);
-    mimosa.withdraw(secret);
+    let middle = token.balance_of(user1());
+    let proof = mimosa.get_proof(7);
+
+    mimosa.withdraw(7, proof, secret);
+    let after = token.balance_of(user1());
+
+    assert_gt!(before, middle);
+    assert_gt!(after, middle);
+    assert_eq!(before, after);
 }
 
 // For testing multiple deposits manually
