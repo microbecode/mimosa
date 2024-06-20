@@ -45,15 +45,7 @@ mod Mimosa {
             denomination
         }
 
-        fn deposit(ref self: ContractState, commitment: felt252) {
-            insert(ref self, commitment);
-            self
-                .token_address
-                .read()
-                .transfer_from(get_caller_address(), get_contract_address(), denomination);
-        }
-
-        fn get_proof(ref self: ContractState, mut index: u32) -> Span<felt252> {
+        fn get_proof(self: @ContractState, mut index: u32) -> Span<felt252> {
             let mut nodes: Array<felt252> = array![];
             let mut i = 0;
             while (i <= last_leaf_index) {
@@ -73,6 +65,14 @@ mod Mimosa {
                 index = index / 2;
             };
             return proof.span();
+        }
+
+        fn deposit(ref self: ContractState, commitment: felt252) {
+            insert(ref self, commitment);
+            self
+                .token_address
+                .read()
+                .transfer_from(get_caller_address(), get_contract_address(), denomination);
         }
 
         fn withdraw(ref self: ContractState, index: u32, proof: Span<felt252>, preimage: felt252) {

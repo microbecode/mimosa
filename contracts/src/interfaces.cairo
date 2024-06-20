@@ -4,10 +4,10 @@ use starknet::ContractAddress;
 pub trait IMimosa<TContractState> {
     fn calculate_hash(self: @TContractState, preimage: felt252) -> felt252;
     fn denomination(self: @TContractState) -> u256;
+    fn get_proof(self: @TContractState, index: u32) -> Span<felt252>;
 
     fn deposit(ref self: TContractState, commitment: felt252);
     fn withdraw(ref self: TContractState, index: u32, proof: Span<felt252>, preimage: felt252);
-    fn get_proof(ref self: TContractState, index: u32) -> Span<felt252>;
 }
 
 #[starknet::interface]
