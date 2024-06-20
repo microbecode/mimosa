@@ -36,12 +36,21 @@ mod Mimosa {
 
     #[abi(embed_v0)]
     impl MimosaImpl of IMimosa<ContractState> {
+        fn calculate_hash(self: @ContractState, preimage: felt252) -> felt252 {
+            let (hash, _, _) = hades_permutation(preimage, 0, 1);
+            hash
+        }
+
+        fn denomination(self: @ContractState) -> u256 {
+            denomination
+        }
+
         fn deposit(ref self: ContractState, commitment: felt252) {
+            insert(ref self, commitment);
             self
                 .token_address
                 .read()
                 .transfer_from(get_caller_address(), get_contract_address(), denomination);
-            insert(ref self, commitment);
         }
 
         fn get_proof(ref self: ContractState, mut index: u32) -> Span<felt252> {

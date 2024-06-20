@@ -89,8 +89,7 @@ const deepMergeContracts = <
 
 const contractsData = deepMergeContracts(
   deployedContractsData,
-  //predeployedContracts,
-  {},
+  predeployedContracts,
 );
 
 type IsContractDeclarationMissing<TYes, TNo> = typeof contractsData extends {

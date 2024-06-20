@@ -8,7 +8,8 @@
     "test": "cd contracts && snforge test",
     "compile": "cd contracts && scarb build",
     "format": "prettier --write 'scripts-ts/**/*.{ts,tsx}' && cd contracts && scarb fmt",
-    "format:check": "prettier --check 'scripts-ts/**/*.{ts,tsx}' && cd contracts && scarb fmt --check"
+    "format:check": "prettier --check 'scripts-ts/**/*.{ts,tsx}' && cd contracts && scarb fmt --check",
+    "calculate-hash": "ts-node scripts-ts/helpers/calculate-hash.ts"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -19,6 +20,7 @@
     "yargs": "^17.7.2"
   },
   "dependencies": {
+    "@scure/starknet": "^1.0.0",
     "dotenv": "^16.3.1",
     "envfile": "^6.18.0",
     "prettier": "^2.8.8",

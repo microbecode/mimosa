@@ -4,7 +4,7 @@ version = 1
 [[package]]
 name = "alexandria_merkle_tree"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/alexandria.git#3041887b95cf10f9d3cd8d75326c754b331f9573"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git#ef3292bbd9b35218dea18876373a31bf7f18934e"
 
 [[package]]
 name = "contracts"
