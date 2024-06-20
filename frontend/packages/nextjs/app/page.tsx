@@ -17,7 +17,7 @@ const Home: NextPage = () => {
 
   const {writeAsync} = useScaffoldMultiWriteContract({
     calls: [
-      //createContractCall("Eth", "approve", [mimosa.data?.address, 100]),
+      createContractCall("Eth", "approve", [mimosa.data?.address, 100]),
       createContractCall("Mimosa", "deposit", ["0xf00"])
     ],
   })
