@@ -135,10 +135,14 @@ const Home: NextPage = () => {
               onClick={() => {
                 withdraw.writeAsync();
               }}
+<<<<<<< HEAD
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Withdraw from Mimosa
             </div>
+=======
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Withdraw from Mimosa</div>
+>>>>>>> 14e793c (fix(frontend): button label)
           </div>
         </div>
       }
