@@ -6,7 +6,7 @@ import { ThemeProvider } from "~~/components/ThemeProvider";
 export const metadata: Metadata = {
   title: "Mimosa",
   description: "",
-  icons: "/drink.ico",
+  icons: "/orange.ico",
 };
 
 const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {

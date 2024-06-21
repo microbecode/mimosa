@@ -105,7 +105,7 @@ export const Header = () => {
               alt="SE2 logo"
               className="cursor-pointer"
               fill
-              src="/drink.ico"
+              src="/orange.ico"
             />
           </div>
           <div className="flex flex-col">

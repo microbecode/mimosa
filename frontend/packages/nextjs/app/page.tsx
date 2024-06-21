@@ -12,7 +12,6 @@ import {
 } from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-stark/useDeployedContractInfo";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-stark/useScaffoldWriteContract";
-import { MimosaContract } from "./mimosa/_components/MimosaContract";
 import { useState } from "react";
 
 const Home: NextPage = () => {
@@ -24,38 +23,47 @@ const Home: NextPage = () => {
 
   const handleCommitmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCommitmentValue(e.target.value);
-  }
+  };
 
   const [withdrawIndexValue, setWithdrawIndexValue] = useState<string>("");
   const [withdrawProofValue, setWithdrawProofValue] = useState<string>("");
-  const [withdrawPreimageValue, setWithdrawPreimageValue] = useState<string>("");
+  const [withdrawPreimageValue, setWithdrawPreimageValue] =
+    useState<string>("");
 
-  const handleWithdrawIndexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleWithdrawIndexChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setWithdrawIndexValue(e.target.value);
-  }
-  const handleWithdrawProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  };
+  const handleWithdrawProofChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setWithdrawProofValue(e.target.value);
-  }
-  const handleWithdrawPreimageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  };
+  const handleWithdrawPreimageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setWithdrawPreimageValue(e.target.value);
-  }
+  };
 
   const deposit = useScaffoldMultiWriteContract({
     calls: [
       createContractCall("Eth", "approve", [mimosa.data?.address, 100]),
       createContractCall("Mimosa", "deposit", [commitmentValue]),
-    ]
+    ],
   });
-
 
   const withdraw = useScaffoldWriteContract({
     contractName: "Mimosa",
     functionName: "withdraw",
     // TODO: proof should be a list of bigints, handle it
-    args: [Number(withdrawIndexValue), [Number(withdrawProofValue)], Number(withdrawPreimageValue)],
+    args: [
+      Number(withdrawIndexValue),
+      [Number(withdrawProofValue)],
+      Number(withdrawPreimageValue),
+    ],
     //args: [0, [0], 0]
   });
-
 
   return (
     <>
@@ -72,29 +80,58 @@ const Home: NextPage = () => {
         <div className="flex justify-center w-full p-4">
           <div className="flex flex-col items-start space-y-2 bg-white shadow-md rounded-lg p-6 max-w-md w-full">
             <p className="text-lg font-semibold text-gray-700">Deposit:</p>
-            <input type="text" value={commitmentValue} onChange={handleCommitmentChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Commitment (felt252)" />
+            <input
+              type="text"
+              value={commitmentValue}
+              onChange={handleCommitmentChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Commitment (felt252)"
+            />
             <div
               onClick={() => {
                 deposit.writeAsync();
               }}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Deposit into Mimosa</div>
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Deposit into Mimosa
             </div>
           </div>
+        </div>
       }
 
       {
         <div className="flex justify-center w-full p-4 ">
-        <div className="flex flex-col items-start space-y-2 bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-
-        <p className="text-lg font-semibold text-gray-700">Withdraw:</p>
-        <input type="text" value={withdrawIndexValue} onChange={handleWithdrawIndexChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Index (felt252)" />
-        <input type="text" value={withdrawProofValue} onChange={handleWithdrawProofChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Proof (Span<felt252>)" />
-        <input type="text" value={withdrawPreimageValue} onChange={handleWithdrawPreimageChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Preimage (felt252)" />
+          <div className="flex flex-col items-start space-y-2 bg-white shadow-md rounded-lg p-6 max-w-md w-full">
+            <p className="text-lg font-semibold text-gray-700">Withdraw:</p>
+            <input
+              type="text"
+              value={withdrawIndexValue}
+              onChange={handleWithdrawIndexChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Index (felt252)"
+            />
+            <input
+              type="text"
+              value={withdrawProofValue}
+              onChange={handleWithdrawProofChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Proof (Span<felt252>)"
+            />
+            <input
+              type="text"
+              value={withdrawPreimageValue}
+              onChange={handleWithdrawPreimageChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Preimage (felt252)"
+            />
             <div
               onClick={() => {
                 deposit.writeAsync();
               }}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Deposit into Mimosa</div>
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Deposit into Mimosa
+            </div>
           </div>
         </div>
       }
