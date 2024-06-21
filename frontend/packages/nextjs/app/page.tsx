@@ -12,7 +12,7 @@ import {
 } from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-stark/useDeployedContractInfo";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-stark/useScaffoldWriteContract";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Home: NextPage = () => {
   const connectedAddress = useAccount();
@@ -20,6 +20,18 @@ const Home: NextPage = () => {
   const mimosa = useDeployedContractInfo("Mimosa");
 
   const [commitmentValue, setCommitmentValue] = useState<string>("");
+  const [user1Balance, setUser1Balance] = useState<string>(
+    "1000000000000000000000"
+  );
+  const [user2Balance, setUser2Balance] = useState<string>(
+    "1000000000000000000000"
+  );
+
+  useEffect(() => {
+    if (commitmentValue) {
+      // TODO: convert to Poseidon hash and send to contract
+    }
+  }, [commitmentValue]);
 
   const handleCommitmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCommitmentValue(e.target.value);
@@ -57,13 +69,15 @@ const Home: NextPage = () => {
     contractName: "Mimosa",
     functionName: "withdraw",
     // TODO: proof should be a list of bigints, handle it
-    args: [
-      Number(withdrawIndexValue),
-      [Number(withdrawProofValue)],
-      Number(withdrawPreimageValue),
-    ],
+    args: [[Number(withdrawProofValue)], Number(withdrawPreimageValue)],
     //args: [0, [0], 0]
   });
+
+  // TODO: read balances from the blockchain for real
+  const switchBalance = () => {
+    setUser1Balance("999999999999999999900");
+    setUser2Balance("1000000000000000000100");
+  };
 
   return (
     <>
@@ -105,13 +119,6 @@ const Home: NextPage = () => {
             <p className="text-lg font-semibold text-gray-700">Withdraw:</p>
             <input
               type="text"
-              value={withdrawIndexValue}
-              onChange={handleWithdrawIndexChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Index (felt252)"
-            />
-            <input
-              type="text"
               value={withdrawProofValue}
               onChange={handleWithdrawProofChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -126,13 +133,26 @@ const Home: NextPage = () => {
             />
             <div
               onClick={() => {
-                deposit.writeAsync();
+                withdraw.writeAsync();
               }}
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              Deposit into Mimosa
+              Withdraw from Mimosa
             </div>
           </div>
+        </div>
+      }
+
+      {
+        <div className="flex flex-col items-center w-full">
+          <p className="mb-2 text-center text-black">
+            User 1 STRK balance: {user1Balance}
+          </p>
+          <p className="text-center text-black">
+            <span onClick={switchBalance}>
+              User 2 STRK balance: {user2Balance}
+            </span>
+          </p>
         </div>
       }
     </>

@@ -9,7 +9,7 @@ To simulate the flow from the command line:
 ```sh
 
 export STRK="0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
-export MIMOSA="0x07c9aa65837677f0e340f2bf44200901419d26b00bfc13f7f6a55f37413ab543"
+export MIMOSA="0x019532813385502f438f5a4a4b7d8fea675c40ea827c81dedacb2a66ebf2ae7a"
 export USER1="0x64b48806902a367c8598f4f95c305e8c1a1acba5f082d294a43793113115691"
 export USER2="0x78662e7352d062084b0010068b99288486c2d8b914f6e2a55ce945f8792c8b1"
 export SIZE=100
@@ -37,3 +37,5 @@ sncast --profile user2 invoke -a $MIMOSA -f withdraw -c 0x3 0x60009f680a43e6f760
 sncast  --int-format --profile user2 call -a $STRK -f balance_of -c $USER1
 sncast  --int-format --profile user2 call -a $STRK -f balance_of -c $USER2
 ```
+
+You can also use the `runflow.sh` file to run the full flow. Remember to change the Mimosa contract address.
