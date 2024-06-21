@@ -78,7 +78,7 @@ export const Address = ({
 
   const blockExplorerAddressLink = getBlockExplorerAddressLink(
     targetNetwork,
-    checkSumAddress,
+    checkSumAddress
   );
   let displayAddress =
     checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4);
@@ -91,13 +91,6 @@ export const Address = ({
 
   return (
     <div className="flex items-center">
-      <div className="flex-shrink-0">
-        <BlockieAvatar
-          address={checkSumAddress}
-          ensImage={ensAvatar}
-          size={(blockieSizeMap[size] * 24) / blockieSizeMap["base"]}
-        />
-      </div>
       {disableAddressLink ? (
         <span className={`ml-1.5 text-${size} font-normal`}>
           {displayAddress}

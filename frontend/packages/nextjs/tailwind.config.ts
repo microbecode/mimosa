@@ -10,13 +10,13 @@ const config: Config = {
     themes: [
       {
         mytheme: {
-          primary: "#794BFC",
+          primary: "#aaaaaa",
 
           secondary: "F4F1FD",
 
           accent: "#ff00ff",
 
-          neutral: "#ff00ff",
+          neutral: "##aaaaaa",
 
           "base-100": "#ffffff",
 
@@ -57,8 +57,8 @@ module.exports = {
     themes: [
       {
         light: {
-          primary: "#93BBFB",
-          "primary-content": "#2A3655",
+          primary: "#aaaaaa",
+          "primary-content": "#aaaaaa",
           secondary: "#DAE8FF",
           "secondary-content": "#212638",
           accent: "#93BBFB",
