@@ -74,7 +74,7 @@ const Home: NextPage = () => {
   });
 
   // TODO: read balances from the blockchain for real
-  const switchBalance = () => {
+  const updateBalance = () => {
     setUser1Balance("999999999999999999900");
     setUser2Balance("1000000000000000000100");
   };
@@ -149,10 +149,15 @@ const Home: NextPage = () => {
             User 1 STRK balance: {user1Balance}
           </p>
           <p className="text-center text-black">
-            <span onClick={switchBalance}>
-              User 2 STRK balance: {user2Balance}
-            </span>
+            User 2 STRK balance: {user2Balance}
           </p>
+
+          <div
+            onClick={updateBalance}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Update balances
+          </div>
         </div>
       }
     </>
