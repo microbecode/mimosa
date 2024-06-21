@@ -75,13 +75,15 @@ mod Mimosa {
                 .transfer_from(get_caller_address(), get_contract_address(), denomination);
         }
 
-        fn withdraw(ref self: ContractState, index: u32, proof: Span<felt252>, preimage: felt252) {
+        fn withdraw(ref self: ContractState, proof: Span<felt252>, preimage: felt252) {
             let mut merkle_tree: MerkleTree<Hasher> = MerkleTreeTrait::new();
 
             let (hash, _, _) = hades_permutation(preimage, 0, 1);
             let res = merkle_tree.verify(self.nodes.read(0), hash, proof);
             if (res) {
                 self.token_address.read().transfer(get_caller_address(), denomination);
+            } else {
+                panic!("Wrong proof");
             }
         }
     }

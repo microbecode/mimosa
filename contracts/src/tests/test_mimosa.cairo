@@ -11,6 +11,9 @@ use starknet::ContractAddress;
 fn user1() -> ContractAddress {
     'user 1'.try_into().unwrap()
 }
+fn user2() -> ContractAddress {
+    'user 2'.try_into().unwrap()
+}
 const denomination: u256 = 100;
 
 fn deploy_mimosa(token_address: ContractAddress) -> ContractAddress {
@@ -42,19 +45,28 @@ fn test_flow() {
     token.approve(mimosa_address, denomination);
     stop_cheat_caller_address(token_address);
 
+    let user1BalanceBefore = token.balance_of(user1());
+    let user2BalanceBefore = token.balance_of(user2());
+
     start_cheat_caller_address(mimosa_address, user1());
 
-    let before = token.balance_of(user1());
     mimosa.deposit(hash);
-    let middle = token.balance_of(user1());
+    stop_cheat_caller_address(mimosa_address);
+
     let proof = mimosa.get_proof(7);
 
-    mimosa.withdraw(7, proof, secret);
-    let after = token.balance_of(user1());
+    start_cheat_caller_address(mimosa_address, user2());
+    mimosa.withdraw(proof, secret);
+    stop_cheat_caller_address(mimosa_address);
 
-    assert_gt!(before, middle);
-    assert_gt!(after, middle);
-    assert_eq!(before, after);
+    let user1BalanceAfter = token.balance_of(user1());
+    let user2BalanceAfter = token.balance_of(user2());
+
+    println!("User 1 {} -> {}", user1BalanceBefore, user1BalanceAfter);
+    println!("User 2 {} -> {}", user2BalanceBefore, user2BalanceAfter);
+
+    assert_gt!(user1BalanceBefore, user1BalanceAfter);
+    assert_gt!(user2BalanceAfter, user2BalanceBefore);
 }
 
 // For testing multiple deposits manually

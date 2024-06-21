@@ -7,7 +7,7 @@ pub trait IMimosa<TContractState> {
     fn get_proof(self: @TContractState, index: u32) -> Span<felt252>;
 
     fn deposit(ref self: TContractState, commitment: felt252);
-    fn withdraw(ref self: TContractState, index: u32, proof: Span<felt252>, preimage: felt252);
+    fn withdraw(ref self: TContractState, proof: Span<felt252>, preimage: felt252);
 }
 
 #[starknet::interface]
