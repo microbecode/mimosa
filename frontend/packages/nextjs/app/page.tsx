@@ -70,7 +70,7 @@ const Home: NextPage = () => {
 
       {
         <div className="flex justify-center w-full p-4">
-          <div className="flex flex-col items-start space-y-2 bg-white shadow-md rounded-lg p-6 max-w-md w-full bg-[#ffe148]">
+          <div className="flex flex-col items-start space-y-2 bg-white shadow-md rounded-lg p-6 max-w-md w-full">
             <p className="text-lg font-semibold text-gray-700">Deposit:</p>
             <input type="text" value={commitmentValue} onChange={handleCommitmentChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Commitment (felt252)" />
             <div
@@ -84,7 +84,7 @@ const Home: NextPage = () => {
 
       {
         <div className="flex justify-center w-full p-4 ">
-        <div className="flex flex-col items-start space-y-2 bg-white shadow-md rounded-lg p-6 max-w-md w-full bg-[#ffe148]">
+        <div className="flex flex-col items-start space-y-2 bg-white shadow-md rounded-lg p-6 max-w-md w-full">
 
         <p className="text-lg font-semibold text-gray-700">Withdraw:</p>
         <input type="text" value={withdrawIndexValue} onChange={handleWithdrawIndexChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Index (felt252)" />
