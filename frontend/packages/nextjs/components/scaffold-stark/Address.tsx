@@ -90,7 +90,7 @@ export const Address = ({
   }
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center text-black">
       {disableAddressLink ? (
         <span className={`ml-1.5 text-${size} font-normal`}>
           {displayAddress}

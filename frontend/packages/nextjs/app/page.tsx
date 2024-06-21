@@ -36,7 +36,7 @@ const Home: NextPage = () => {
       <div className="flex items-center flex-col flex-grow pt-10">
         <div className="px-5">
           <div className="flex justify-center items-center space-x-2">
-            <p className="my-2 font-medium">Connected Address:</p>
+            <p className="my-2 font-medium text-black">Connected Address:</p>
             <Address address={connectedAddress.address as AddressType} />
           </div>
         </div>
