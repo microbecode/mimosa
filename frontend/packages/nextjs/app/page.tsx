@@ -11,18 +11,25 @@ import {
   useScaffoldMultiWriteContract,
 } from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-stark/useDeployedContractInfo";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-stark/useScaffoldWriteContract";
 
 const Home: NextPage = () => {
   const connectedAddress = useAccount();
 
   const mimosa = useDeployedContractInfo("Mimosa");
 
-  const { writeAsync } = useScaffoldMultiWriteContract({
+  const deposit = useScaffoldMultiWriteContract({
     calls: [
       createContractCall("Eth", "approve", [mimosa.data?.address, 100]),
       createContractCall("Mimosa", "deposit", ["0xf00"]),
-    ],
+    ]
   });
+
+  // const withdraw = useScaffoldWriteContract({
+  //   contractName: "Mimosa",
+  //   functionName: "withdraw",
+  //   args: [0n, [1n, 1n], 0xf00n], // index, proof, preimage
+  // });
 
   return (
     <>
@@ -38,7 +45,7 @@ const Home: NextPage = () => {
       {
         <div
           onClick={() => {
-            writeAsync();
+            deposit.writeAsync();
           }}
           className="inline-block px-4 py-2 bg-primary text-primary-content border-none rounded cursor-pointer text-center"
         >
@@ -50,7 +57,8 @@ const Home: NextPage = () => {
           <div style={{ padding: "10px" }}></div>
           <div
             onClick={() => {
-              writeAsync();
+              //withdraw.writeAsync();
+              alert("not implemented yet");
             }}
             className="inline-block px-4 py-2 bg-primary text-primary-content border-none rounded cursor-pointer text-center"
           >
