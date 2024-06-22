@@ -171,12 +171,12 @@ const Home: NextPage = () => {
         </div>
       }
 
-      {
+      {/* {
       <div className="flex flex-col items-center w-full">
         <p className="mb-2 text-center text-black">User 1 STRK: <BalanceComponent address={user1} /></p>
         <p className="mb-2 text-center text-black">User 2 STRK: <BalanceComponent address={user2} /></p>
       </div>
-      }
+      } */}
 
     </>
   );

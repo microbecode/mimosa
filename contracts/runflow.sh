@@ -1,10 +1,15 @@
 #!/bin/sh
 
 STRK="0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
-MIMOSA="0x01ee3f98694c0bc21622856d724775af42949f162d318cda8a975ad9283ccb49"
+MIMOSA="0x04af3c9dfe23d110888a23425deb0e0e4548addd9ea2ff5bd853b08252281da8"
 USER1="0x64b48806902a367c8598f4f95c305e8c1a1acba5f082d294a43793113115691"
 USER2="0x78662e7352d062084b0010068b99288486c2d8b914f6e2a55ce945f8792c8b1"
 SIZE=100
+
+# show User 1 and User 2 start balances
+printf "=== Checking user start balances\n"
+sncast --int-format --profile user2 call -a $STRK -f balance_of -c $USER1
+sncast --int-format --profile user2 call -a $STRK -f balance_of -c $USER2
 
 # approve mimosa to spend devnet user1 strk
 printf "=== User 1 approves Mimosa to spend its STRK\n"
