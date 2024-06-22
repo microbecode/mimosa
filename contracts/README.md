@@ -1,3 +1,23 @@
+This folder includes the Cairo smart contracts for the project and instructions on how to use those.
+
+## Contracts
+
+The smart contracts are written in Cairo version 2.6.3.
+
+There is one main contract (mimosa.cairo) and a few auxiliary, and test contracts. The unit tests are available in the `tests` folder.
+
+## Local dev instructions
+
+### Requirements
+
+You will need to have the following things installed:
+
+1. Cairo, at least version 2.6.3
+1. Starknet-Foundry
+1. Starknet-devnet-rs
+
+### Local dev
+
 To initialize local dev environment:
 
 1. Go to folder `/frontend` and run `yarn run devnet`
